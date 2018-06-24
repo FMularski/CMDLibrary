@@ -19,6 +19,10 @@ namespace CMDLibrary.EntitiesConfigurations
             Property(b => b.Title)
                 .IsRequired()
                 .HasMaxLength(128);
+
+            HasRequired(b => b.Author)
+                .WithMany(a => a.Books)
+                .HasForeignKey(b => b.AuthorId);
         }
     }
 }

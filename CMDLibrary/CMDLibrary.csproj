@@ -49,12 +49,30 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Author.cs" />
     <Compile Include="Book.cs" />
+    <Compile Include="EntitiesConfigurations\AuthorConfiguration.cs" />
     <Compile Include="EntitiesConfigurations\BookConfiguration.cs" />
     <Compile Include="LibraryContext.cs" />
     <Compile Include="Migrations\201806241628294_Init.cs" />
     <Compile Include="Migrations\201806241628294_Init.Designer.cs">
       <DependentUpon>201806241628294_Init.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806242045052_CreatedAuthorsTable.cs" />
+    <Compile Include="Migrations\201806242045052_CreatedAuthorsTable.Designer.cs">
+      <DependentUpon>201806242045052_CreatedAuthorsTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806242048121_AddedAuthorIdColumnToBooksTable.cs" />
+    <Compile Include="Migrations\201806242048121_AddedAuthorIdColumnToBooksTable.Designer.cs">
+      <DependentUpon>201806242048121_AddedAuthorIdColumnToBooksTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806242049321_AddedDescriptionColumnToBooksTable.cs" />
+    <Compile Include="Migrations\201806242049321_AddedDescriptionColumnToBooksTable.Designer.cs">
+      <DependentUpon>201806242049321_AddedDescriptionColumnToBooksTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806242052147_ChangedColumnsInAuthorsTableToNonNullable.cs" />
+    <Compile Include="Migrations\201806242052147_ChangedColumnsInAuthorsTableToNonNullable.Designer.cs">
+      <DependentUpon>201806242052147_ChangedColumnsInAuthorsTableToNonNullable.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Program.cs" />
@@ -67,6 +85,18 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201806241628294_Init.resx">
       <DependentUpon>201806241628294_Init.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806242045052_CreatedAuthorsTable.resx">
+      <DependentUpon>201806242045052_CreatedAuthorsTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806242048121_AddedAuthorIdColumnToBooksTable.resx">
+      <DependentUpon>201806242048121_AddedAuthorIdColumnToBooksTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806242049321_AddedDescriptionColumnToBooksTable.resx">
+      <DependentUpon>201806242049321_AddedDescriptionColumnToBooksTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806242052147_ChangedColumnsInAuthorsTableToNonNullable.resx">
+      <DependentUpon>201806242052147_ChangedColumnsInAuthorsTableToNonNullable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
