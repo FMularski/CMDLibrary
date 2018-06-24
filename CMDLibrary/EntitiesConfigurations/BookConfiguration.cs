@@ -23,6 +23,10 @@ namespace CMDLibrary.EntitiesConfigurations
             HasRequired(b => b.Author)
                 .WithMany(a => a.Books)
                 .HasForeignKey(b => b.AuthorId);
+
+            HasRequired(b => b.Genre)
+                .WithMany(g => g.Books)
+                .HasForeignKey(b => b.GenreId);
         }
     }
 }
