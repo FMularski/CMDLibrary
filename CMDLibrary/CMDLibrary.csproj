@@ -49,12 +49,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Book.cs" />
+    <Compile Include="EntitiesConfigurations\BookConfiguration.cs" />
+    <Compile Include="LibraryContext.cs" />
+    <Compile Include="Migrations\201806241628294_Init.cs" />
+    <Compile Include="Migrations\201806241628294_Init.Designer.cs">
+      <DependentUpon>201806241628294_Init.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201806241628294_Init.resx">
+      <DependentUpon>201806241628294_Init.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
