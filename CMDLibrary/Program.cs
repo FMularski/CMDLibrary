@@ -19,15 +19,17 @@ namespace CMDLibrary
         {
             Book book = new Book();
 
-            for(; ;)
+            string ISBN;
+            bool uniqueISBN;
+
+            do
             {
                 Console.Write("Enter ISBN of the new book: ");
-
-                string ISBN = Console.ReadLine();
-                bool uniqueISBN = true;
+                ISBN = Console.ReadLine();
+                uniqueISBN = true;
 
                 foreach (var b in Context.Books)
-                    if (ISBN == b.ISBN)
+                    if ( b.ISBN == ISBN)
                     {
                         uniqueISBN = false;
                         break;
@@ -40,7 +42,9 @@ namespace CMDLibrary
                 }
                 else
                     Console.WriteLine("Error: Entered ISBN is invalid or already taken. Try again.");
-            }
+
+            } while (!uniqueISBN || string.IsNullOrEmpty(ISBN));
+
 
             string title;
 
