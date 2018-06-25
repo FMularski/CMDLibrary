@@ -27,6 +27,10 @@ namespace CMDLibrary.EntitiesConfigurations
             HasRequired(b => b.Genre)
                 .WithMany(g => g.Books)
                 .HasForeignKey(b => b.GenreId);
+
+            HasOptional(b => b.UserWhoRented)
+                .WithMany(u => u.RentedBooks)
+                .HasForeignKey(b => b.UserWhoRentedId);
         }
     }
 }

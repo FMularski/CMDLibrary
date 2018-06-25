@@ -15,5 +15,8 @@ namespace CMDLibrary
         public int AuthorId { get; set; }
         public Genre Genre { get; set; }
         public int GenreId { get; set; }
+        public bool Rented { get; set; }
+        public User UserWhoRented { get; set; }
+        public int? UserWhoRentedId { get; set; }
     }
 }

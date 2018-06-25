@@ -54,6 +54,7 @@
     <Compile Include="EntitiesConfigurations\AuthorConfiguration.cs" />
     <Compile Include="EntitiesConfigurations\BookConfiguration.cs" />
     <Compile Include="EntitiesConfigurations\GenreConfiguration.cs" />
+    <Compile Include="EntitiesConfigurations\UserConfiguration.cs" />
     <Compile Include="Genre.cs" />
     <Compile Include="LibraryContext.cs" />
     <Compile Include="Migrations\201806241628294_Init.cs" />
@@ -84,9 +85,22 @@
     <Compile Include="Migrations\201806242104305_PopulateGenresTable.Designer.cs">
       <DependentUpon>201806242104305_PopulateGenresTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806252010363_CreatedUsersTable.cs" />
+    <Compile Include="Migrations\201806252010363_CreatedUsersTable.Designer.cs">
+      <DependentUpon>201806252010363_CreatedUsersTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806252015282_AddColumnUserWhoRentedInBooksTable.cs" />
+    <Compile Include="Migrations\201806252015282_AddColumnUserWhoRentedInBooksTable.Designer.cs">
+      <DependentUpon>201806252015282_AddColumnUserWhoRentedInBooksTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806252022271_FluentAPI_User_Book.cs" />
+    <Compile Include="Migrations\201806252022271_FluentAPI_User_Book.Designer.cs">
+      <DependentUpon>201806252022271_FluentAPI_User_Book.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="User.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -113,6 +127,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806242104305_PopulateGenresTable.resx">
       <DependentUpon>201806242104305_PopulateGenresTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806252010363_CreatedUsersTable.resx">
+      <DependentUpon>201806252010363_CreatedUsersTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806252015282_AddColumnUserWhoRentedInBooksTable.resx">
+      <DependentUpon>201806252015282_AddColumnUserWhoRentedInBooksTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806252022271_FluentAPI_User_Book.resx">
+      <DependentUpon>201806252022271_FluentAPI_User_Book.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -13,7 +13,7 @@ namespace CMDLibrary
         public DbSet<Book> Books { get; set; }
         public DbSet<Author> Authors { get; set; }
         public DbSet<Genre> Genres { get; set; }
-
+        public DbSet<User> Users { get; set; }
         public LibraryContext() : base("name=Library") { ; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -21,6 +21,7 @@ namespace CMDLibrary
             modelBuilder.Configurations.Add(new BookConfiguration());
             modelBuilder.Configurations.Add(new AuthorConfiguration());
             modelBuilder.Configurations.Add(new GenreConfiguration());
+            modelBuilder.Configurations.Add(new UserConfiguration());
 
             base.OnModelCreating(modelBuilder);
         }
