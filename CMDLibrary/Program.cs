@@ -14,15 +14,28 @@ namespace CMDLibrary
             Edit
         }
 
+        enum Selection : byte
+        {
+            ListOfBooks,
+            Register,
+            LogIn,
+            LogOut,
+            MyAccount,
+            MyBooks,
+            Exit
+        }
+
         static void Main(string[] args)
         {
             LibraryContext Context = new LibraryContext();
+
+            while (MainMenu(Context) != (byte)Selection.Exit) ;
 
             //RemoveBook(Context);
             //AddNewBook(Context);
             //EditBook(Context);
             //RegisterUser(Context);
-            LogIn(Context);
+            //LogIn(Context);
         }
 
         static Book BookForm(LibraryContext Context, FormMode mode)
@@ -32,15 +45,15 @@ namespace CMDLibrary
             string ISBN;
             bool uniqueISBN;
 
-            if ( mode == FormMode.New)
+            if (mode == FormMode.New)
                 do
                 {
-                    Console.Write( "Enter ISBN of the new book: ");
+                    Console.Write("Enter ISBN of the new book: ");
                     ISBN = Console.ReadLine();
                     uniqueISBN = true;
 
                     foreach (var b in Context.Books)
-                        if ( b.ISBN == ISBN)
+                        if (b.ISBN == ISBN)
                         {
                             uniqueISBN = false;
                             break;
@@ -61,31 +74,31 @@ namespace CMDLibrary
 
             do
             {
-                Console.Write( mode == FormMode.New ? "Enter the title of the new book: " : "Enter new title of the editted book: ");
+                Console.Write(mode == FormMode.New ? "Enter the title of the new book: " : "Enter new title of the editted book: ");
                 title = Console.ReadLine();
 
-                if ( string.IsNullOrEmpty(title))
+                if (string.IsNullOrEmpty(title))
                     Console.WriteLine("Error: Title is required! Try again.");
-                
+
             } while (string.IsNullOrEmpty(title));
 
             book.Title = title;
 
 
-            Console.Write( mode == FormMode.New ? "Enter the description of the new book: " : "Enter new description of the editted book: ");
+            Console.Write(mode == FormMode.New ? "Enter the description of the new book: " : "Enter new description of the editted book: ");
             book.Description = Console.ReadLine();
 
             string authorsFirstName, authorsLastName;
 
             do
             {
-                Console.Write( mode == FormMode.New ? "Enter author's firstname:" : "Enter new author's firstname: ");
+                Console.Write(mode == FormMode.New ? "Enter author's firstname:" : "Enter new author's firstname: ");
                 authorsFirstName = Console.ReadLine();
 
-                if ( string.IsNullOrEmpty(authorsFirstName))
+                if (string.IsNullOrEmpty(authorsFirstName))
                     Console.WriteLine("Error: Author's firstname is required! Try again.");
 
-            } while ( string.IsNullOrEmpty(authorsFirstName));
+            } while (string.IsNullOrEmpty(authorsFirstName));
 
             do
             {
@@ -114,7 +127,7 @@ namespace CMDLibrary
 
             book.AuthorId = author.Id;
 
-            Console.WriteLine( mode == FormMode.New ? "Select genre of the new book:" : "Select new genre of the editted book:");
+            Console.WriteLine(mode == FormMode.New ? "Select genre of the new book:" : "Select new genre of the editted book:");
             Console.WriteLine("[1] Tragedy\n[2] Tragic comedy\n[3] Fantasy");
             Console.WriteLine("[4] Mythology\n[5] Adventure\n[6] Mystery");
             Console.WriteLine("[7] Science fiction\n[8] Drama\n[9] Romance");
@@ -139,9 +152,9 @@ namespace CMDLibrary
             Console.WriteLine("The book has been successfully added to the library.");
         }
 
-        static void RemoveBook( LibraryContext Context)
+        static void RemoveBook(LibraryContext Context)
         {
-            foreach( var b in Context.Books.ToList())
+            foreach (var b in Context.Books.ToList())
             {
                 Author author = Context.Authors.Single(a => a.Id == b.AuthorId);
                 Console.WriteLine(b.ISBN + "\t\t| \"" + b.Title + "\" " + author.FirstName + " " + author.LastName);
@@ -156,7 +169,7 @@ namespace CMDLibrary
 
                 booktoRemove = Context.Books.SingleOrDefault(b => b.ISBN == ISBN);
 
-                if ( booktoRemove == null)
+                if (booktoRemove == null)
                     Console.WriteLine("Error: Invalid ISBN: " + ISBN + ". Try again.");
 
             } while (booktoRemove == null);
@@ -172,7 +185,7 @@ namespace CMDLibrary
                 Console.WriteLine("\nRemoval cancelled.");
         }
 
-        static void EditBook( LibraryContext context)
+        static void EditBook(LibraryContext context)
         {
             foreach (var b in context.Books.ToList())
             {
@@ -214,8 +227,30 @@ namespace CMDLibrary
                 Console.WriteLine("\nEdittion cancelled.");
         }
 
-        static void RegisterUser( LibraryContext context)
+        static void ListOfBooks(LibraryContext context)
         {
+            Console.WriteLine("╔═══════════════╗");
+            Console.WriteLine("║ LIST OF BOOKS ║");
+            Console.WriteLine("╚═══════════════╝");
+
+            foreach (var b in context.Books.ToList())
+            {
+                Author author = context.Authors.Single(a => a.Id == b.AuthorId);
+                Console.Write(b.ISBN + "\t\t| \"" + b.Title + "\" " + author.FirstName + " " + author.LastName + "\t\tAvailable: ");
+                Console.WriteLine(b.Rented ? "No" : "Yes");
+            }
+
+            Console.WriteLine("\nPress any key to continue.");
+            Console.ReadKey();
+            Console.Clear();
+        }
+
+        static void RegisterUser(LibraryContext context)
+        {
+            Console.WriteLine("╔══════════════╗");
+            Console.WriteLine("║ REGISTRATION ║");
+            Console.WriteLine("╚══════════════╝");
+
             string login, pass, passConfirm;
             bool loginAvailable;
 
@@ -233,7 +268,7 @@ namespace CMDLibrary
                 }
 
                 foreach (var user in context.Users)
-                    if ( user.Login == login)
+                    if (user.Login == login)
                     {
                         loginAvailable = false;
                         Console.WriteLine("Login \"" + login + "\" is already taken. Use different one.");
@@ -270,19 +305,22 @@ namespace CMDLibrary
 
             context.SaveChanges();
             Console.WriteLine("Account has been registered successfully.");
+            Console.WriteLine("\nPress any key to continue.");
+            Console.ReadKey();
+            Console.Clear();
         }
 
-        static bool LogIn( LibraryContext context)
+        static User LogIn(LibraryContext context)
         {
-            string login, pass;
-            bool match;
+            Console.WriteLine("╔════════════╗");
+            Console.WriteLine("║ LOGGING IN ║");
+            Console.WriteLine("╚════════════╝");
 
-            Console.WriteLine("--== LOG IN ==--");
+            string login, pass;
+            User loggedUser = null;
 
             do
             {
-                match = false;
-
                 do
                 {
                     Console.Write("Login: ");
@@ -309,32 +347,161 @@ namespace CMDLibrary
                 {
                     if (user.Login == login && user.Password == pass)
                     {
-                        match = true;
+                        loggedUser = user;
                         break;
                     }
                 }
 
-                if( !match)
+                if (loggedUser == null)
                 {
                     Console.Write("Error: Login or password is incorrect.\nDo you want to try again?\n[Y]\t[N] No\n> ");
                     if (Console.ReadKey().KeyChar.ToString().ToLower() == "n") break;
                     else Console.WriteLine();
                 }
 
-               
-            } while (!match);
 
-            if (match)
+            } while (loggedUser == null);
+
+            if (loggedUser != null)
             {
                 Console.WriteLine("\nLogged in.");
-                return true;
+                Console.WriteLine("\nPress any key to continue.");
+                Console.ReadKey();
+                Console.Clear();
+                return loggedUser;
             }
             else
             {
                 Console.WriteLine("\nLogging in cancelled.");
-                return false;
+                Console.WriteLine("\nPress any key to continue.");
+                Console.ReadKey();
+                Console.Clear();
+                return null;
             }
         }
+
+        static void PrintMainScreen()
+        {
+            Console.WriteLine("╔═════════════╗");
+            Console.WriteLine("║ CMD LIBRARY ║");
+            Console.WriteLine("╚═════════════╝");
+            Console.WriteLine("[1] List of books");
+            Console.WriteLine("[2] Register");
+            Console.WriteLine("[3] Log in");
+            Console.WriteLine("[4] Exit");
+        }
+
+        static byte MainMenu(LibraryContext context)
+        {
+            PrintMainScreen();
+
+            switch (MainScreenChoice())
+            {
+                case 1:
+                    ListOfBooks(context);
+                    return (byte)Selection.ListOfBooks;
+                case 2:
+                    RegisterUser(context);
+                    return (byte)Selection.Register;
+                case 3:
+                    User loggedUser = LogIn(context);
+                    if (loggedUser != null)
+                        while (LoggedInMainMenu(loggedUser, context) != (byte)Selection.LogOut) ;
+                    return (byte)Selection.LogIn;
+                case 4:
+                    return (byte)Selection.Exit;
+                default:
+                    return 0;
+            }
+
+        }
+
+        static int MainScreenChoice()
+        {
+            int choice;
+
+            Console.Write("> ");
+
+            while (!int.TryParse(Console.ReadLine(), out choice) || choice < 1 || choice > 4)
+            {
+                Console.WriteLine("Error: Invalid input. Try again.");
+                Console.Write("> ");
+            }
+
+            Console.Clear();
+
+            return choice;
+        }
+
+        static void LoggedUserScreen(User loggedUser)
+        {
+            Console.WriteLine("╔═════════════╗");
+            Console.WriteLine("║ CMD LIBRARY ║\t\t\tLogged in as: " + loggedUser.Login);
+            Console.WriteLine("╚═════════════╝");
+            Console.WriteLine("[1] List of books");
+            Console.WriteLine("[2] My account");
+            Console.WriteLine("[3] My books");
+            Console.WriteLine("[4] Log out");
+        }
+
+        static byte LoggedInMainMenu(User loggedUser, LibraryContext context)
+        {
+            LoggedUserScreen(loggedUser);
+
+            switch (MainScreenChoice())
+            {
+                case 1:
+                    ListOfBooks(context);
+                    return (byte)Selection.ListOfBooks;
+                case 2:
+                    MyAccount(loggedUser);
+                    return (byte)Selection.MyAccount;
+                case 3:
+                    MyBooks(loggedUser, context);
+                    return (byte)Selection.MyBooks;
+                case 4:
+                    return (byte)Selection.LogOut;
+                default:
+                    return 0;
+            }
+        }
+
+        static void MyAccount(User loggedUser)
+        {
+            Console.WriteLine("╔════════════╗");
+            Console.WriteLine("║ MY ACCOUNT ║");
+            Console.WriteLine("╚════════════╝");
+
+            Console.WriteLine("User ID: " + loggedUser.Id);
+            Console.WriteLine("Login: " + loggedUser.Login);
+            Console.WriteLine("Password: " + loggedUser.Password);
+            Console.WriteLine(loggedUser.Role == User.RoleType.Regular ? "Role: Regular user" : "Role: Administrator");
+
+            Console.WriteLine("\nPress any key to continue.");
+            Console.ReadKey();
+            Console.Clear();
+        }
+
+        static void MyBooks(User loggedUser, LibraryContext context)
+        {
+            Console.WriteLine("╔══════════╗");
+            Console.WriteLine("║ MY BOOKS ║");
+            Console.WriteLine("╚══════════╝");
+
+            if ( loggedUser.RentedBooks == null)
+            {
+                Console.WriteLine("You don't have any rented books.");
+                return;
+            }
+
+            foreach (var b in loggedUser.RentedBooks.ToList())
+            {
+                Author author = context.Authors.Single(a => a.Id == b.AuthorId);
+                Console.WriteLine(b.ISBN + "\t\t| \"" + b.Title + "\" " + author.FirstName + " " + author.LastName);
+            }
+        }
+
+
     }
 
 
