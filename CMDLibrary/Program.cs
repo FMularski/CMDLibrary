@@ -22,20 +22,17 @@ namespace CMDLibrary
             LogOut,
             MyAccount,
             MyBooks,
+            AddBook,
+            EditBook,
+            RemoveBook,
+            RentBook,
             Exit
         }
 
         static void Main(string[] args)
         {
             LibraryContext Context = new LibraryContext();
-
             while (MainMenu(Context) != (byte)Selection.Exit) ;
-
-            //RemoveBook(Context);
-            //AddNewBook(Context);
-            //EditBook(Context);
-            //RegisterUser(Context);
-            //LogIn(Context);
         }
 
         static Book BookForm(LibraryContext Context, FormMode mode)
@@ -150,6 +147,9 @@ namespace CMDLibrary
             context.SaveChanges();
 
             Console.WriteLine("The book has been successfully added to the library.");
+            Console.WriteLine("\nPress any key to continue.");
+            Console.ReadKey();
+            Console.Clear();
         }
 
         static void RemoveBook(LibraryContext Context)
@@ -183,6 +183,10 @@ namespace CMDLibrary
             }
             else
                 Console.WriteLine("\nRemoval cancelled.");
+
+            Console.WriteLine("\nPress any key to continue.");
+            Console.ReadKey();
+            Console.Clear();
         }
 
         static void EditBook(LibraryContext context)
@@ -225,6 +229,10 @@ namespace CMDLibrary
             }
             else
                 Console.WriteLine("\nEdittion cancelled.");
+
+            Console.WriteLine("Press any key to continue.");
+            Console.ReadKey();
+            Console.Clear();
         }
 
         static void ListOfBooks(LibraryContext context)
@@ -395,7 +403,7 @@ namespace CMDLibrary
         {
             PrintMainScreen();
 
-            switch (MainScreenChoice())
+            switch (MainScreenChoice(4))
             {
                 case 1:
                     ListOfBooks(context);
@@ -406,7 +414,13 @@ namespace CMDLibrary
                 case 3:
                     User loggedUser = LogIn(context);
                     if (loggedUser != null)
-                        while (LoggedInMainMenu(loggedUser, context) != (byte)Selection.LogOut) ;
+                    {
+                        if ( loggedUser.Role == User.RoleType.Regular)
+                            while (LoggedInMainMenu(loggedUser, context) != (byte)Selection.LogOut) ;
+
+                        if (loggedUser.Role == User.RoleType.Administrator)
+                            while (AdminMainMenu(loggedUser, context) != (byte)Selection.LogOut) ;
+                    }
                     return (byte)Selection.LogIn;
                 case 4:
                     return (byte)Selection.Exit;
@@ -416,13 +430,13 @@ namespace CMDLibrary
 
         }
 
-        static int MainScreenChoice()
+        static int MainScreenChoice( int choiceCounter)
         {
             int choice;
 
             Console.Write("> ");
 
-            while (!int.TryParse(Console.ReadLine(), out choice) || choice < 1 || choice > 4)
+            while (!int.TryParse(Console.ReadLine(), out choice) || choice < 1 || choice > choiceCounter)
             {
                 Console.WriteLine("Error: Invalid input. Try again.");
                 Console.Write("> ");
@@ -448,7 +462,7 @@ namespace CMDLibrary
         {
             LoggedUserScreen(loggedUser);
 
-            switch (MainScreenChoice())
+            switch (MainScreenChoice(4))
             {
                 case 1:
                     ListOfBooks(context);
@@ -501,8 +515,49 @@ namespace CMDLibrary
             }
         }
 
+        static void AdminScreen(User loggedUser)
+        {
+            Console.WriteLine("╔═════════════╗");
+            Console.WriteLine("║ CMD LIBRARY ║\t\t\tLogged in as: " + loggedUser.Login);
+            Console.WriteLine("╚═════════════╝");
+            Console.WriteLine("[1] List of books");
+            Console.WriteLine("[2] My account");
+            Console.WriteLine("[3] Add a new book");
+            Console.WriteLine("[4] Edit a book");
+            Console.WriteLine("[5] Remove a book");
+            Console.WriteLine("[6] Rent a book");
+            Console.WriteLine("[7] Log out");
+        }
 
+        static byte AdminMainMenu(User loggedUser, LibraryContext context)
+        {
+            AdminScreen(loggedUser);
+
+            switch (MainScreenChoice(7))
+            {
+                case 1:
+                    ListOfBooks(context);
+                    return (byte)Selection.ListOfBooks;
+                case 2:
+                    MyAccount(loggedUser);
+                    return (byte)Selection.MyAccount;
+                case 3:
+                    AddNewBook(context);
+                    return (byte)Selection.AddBook;
+                case 4:
+                    EditBook(context);
+                    return (byte)Selection.EditBook;
+                case 5:
+                    RemoveBook(context);
+                    return (byte)Selection.RemoveBook;
+                case 6:
+                    //RentBook(context);
+                    return (byte)Selection.RentBook;
+                case 7:
+                    return (byte)Selection.LogOut;
+                default:
+                    return 0;
+            }
+        }
     }
-
-
 }
