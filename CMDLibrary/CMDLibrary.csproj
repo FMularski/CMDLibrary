@@ -101,6 +101,10 @@
     <Compile Include="Migrations\201806281150454_AddedRentedDate_ReturnTermColumnsToBooksTable.Designer.cs">
       <DependentUpon>201806281150454_AddedRentedDate_ReturnTermColumnsToBooksTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806281907106_AddedProlongedColumnInBooksTable.cs" />
+    <Compile Include="Migrations\201806281907106_AddedProlongedColumnInBooksTable.Designer.cs">
+      <DependentUpon>201806281907106_AddedProlongedColumnInBooksTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -143,6 +147,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806281150454_AddedRentedDate_ReturnTermColumnsToBooksTable.resx">
       <DependentUpon>201806281150454_AddedRentedDate_ReturnTermColumnsToBooksTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806281907106_AddedProlongedColumnInBooksTable.resx">
+      <DependentUpon>201806281907106_AddedProlongedColumnInBooksTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

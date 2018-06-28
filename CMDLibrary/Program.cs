@@ -27,6 +27,7 @@ namespace CMDLibrary
             RemoveBook,
             RentBook,
             ReturnBook,
+            Prolong,
             Exit
         }
 
@@ -462,22 +463,66 @@ namespace CMDLibrary
             return choice;
         }
 
-        static void LoggedUserScreen(User loggedUser)
+        static void LoggedUserScreen(User loggedUser, LibraryContext context)
         {
             Console.WriteLine("╔═════════════╗");
             Console.WriteLine("║ CMD LIBRARY ║\t\t\tLogged in as: " + loggedUser.Login);
             Console.WriteLine("╚═════════════╝");
+
+            List<Book> shortTermBooks = context.Books
+                .Where(b => b.UserWhoRentedId == loggedUser.Id)
+                .Where(b => DateTime.Now.Day - b.RentedDate.Value.Day <= 3 && DateTime.Now.Day == b.ReturnTerm.Value.Month)
+                .ToList();
+
+            if ( shortTermBooks.Count() > 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !");
+                Console.WriteLine("The following books have to be returned soon:");
+
+                foreach (var b in shortTermBooks)
+                {
+                    Author author = context.Authors.Single(a => a.Id == b.AuthorId);
+                    int daysLeft = b.ReturnTerm.Value.Day - DateTime.Now.Day;
+                    Console.Write("\"" + b.Title + "\" " + author.FirstName + " " + author.LastName + "\t" + daysLeft + " day(s) left.");
+                }
+                Console.WriteLine("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+            }
+
+            List<Book> passedTermBooks = context.Books
+               .Where(b => b.UserWhoRentedId == loggedUser.Id)
+               .Where(b => DateTime.Compare(DateTime.Now, b.ReturnTerm.Value) > 0)
+               .ToList();
+
+            Console.ForegroundColor = ConsoleColor.Red;
+
+            if (passedTermBooks.Count() > 0)
+            {
+                Console.WriteLine("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !");
+                Console.WriteLine("The term of the following books passed:");
+
+                foreach (var b in passedTermBooks)
+                {
+                    Author author = context.Authors.Single(a => a.Id == b.AuthorId);
+                    Console.Write("\"" + b.Title + "\" " + author.FirstName + " " + author.LastName);
+                }
+                Console.WriteLine("\n! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !\n");
+            }
+
+            Console.ForegroundColor = ConsoleColor.Gray;
+
             Console.WriteLine("[1] List of books");
             Console.WriteLine("[2] My account");
             Console.WriteLine("[3] My books");
-            Console.WriteLine("[4] Log out");
+            Console.WriteLine("[4] Prolong");
+            Console.WriteLine("[5] Log out");
         }
 
         static byte LoggedInMainMenu(User loggedUser, LibraryContext context)
         {
-            LoggedUserScreen(loggedUser);
+            LoggedUserScreen(loggedUser, context);
 
-            switch (MainScreenChoice(4))
+            switch (MainScreenChoice(5))
             {
                 case 1:
                     ListOfBooks(context);
@@ -489,6 +534,9 @@ namespace CMDLibrary
                     MyBooks(loggedUser, context);
                     return (byte)Selection.MyBooks;
                 case 4:
+                    Prolong(loggedUser, context);
+                    return (byte)Selection.Prolong;
+                case 5:
                     return (byte)Selection.LogOut;
                 default:
                     return 0;
@@ -517,13 +565,77 @@ namespace CMDLibrary
             Console.WriteLine("║ MY BOOKS ║");
             Console.WriteLine("╚══════════╝");
 
+            context.Books.ToList();
+
             if ( loggedUser.RentedBooks == null)
                 Console.WriteLine("You don't have any rented books.");
             else
-            foreach (var b in loggedUser.RentedBooks.ToList())
+            foreach (var b in loggedUser.RentedBooks)
             {
                 Author author = context.Authors.Single(a => a.Id == b.AuthorId);
+                    if (b.ReturnTerm.Value.Day - DateTime.Now.Day <= 3 && b.ReturnTerm.Value.Month == DateTime.Now.Month) Console.ForegroundColor = ConsoleColor.Yellow;
+                    if ( DateTime.Compare(b.ReturnTerm.Value, DateTime.Now) == -1) Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("\"" + b.Title + "\" " + author.FirstName + " " + author.LastName + "\tRented: " + b.RentedDate.Value.ToShortDateString() + "\tReturn term: " + b.ReturnTerm.Value.ToShortDateString());
+                Console.ForegroundColor = ConsoleColor.Gray;
+            }
+
+            Console.WriteLine("\nPress any key to continue.");
+            Console.ReadKey();
+            Console.Clear();
+        }
+
+        static void Prolong(User loggedUser, LibraryContext context)
+        {
+            Console.WriteLine("╔═════════╗");
+            Console.WriteLine("║ PROLONG ║");
+            Console.WriteLine("╚═════════╝");
+
+            context.Books.ToList();
+
+            if (loggedUser.RentedBooks == null)
+                Console.WriteLine("You don't have any rented books.");
+            else
+            {
+                foreach (var b in loggedUser.RentedBooks.ToList())
+                {
+                    Author author = context.Authors.Single(a => a.Id == b.AuthorId);
+                    if (b.ReturnTerm.Value.Day - DateTime.Now.Day <= 3 && b.ReturnTerm.Value.Month == DateTime.Now.Month) Console.ForegroundColor = ConsoleColor.Yellow;
+                    if (DateTime.Compare(b.ReturnTerm.Value, DateTime.Now) == -1) Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(b.ISBN + "\t\"" + b.Title + "\" " + author.FirstName + " " + author.LastName + "\tRented: " + b.RentedDate.Value.ToShortDateString() + "\tReturn term: " + b.ReturnTerm.Value.ToShortDateString());
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                }
+
+                Book bookToProlong = null;
+
+                do
+                {
+                    Console.Write("\nEnter ISBN of the book's rental you want to prolong: ");
+                    string ISBN = Console.ReadLine();
+
+                    bookToProlong = loggedUser.RentedBooks.SingleOrDefault(book => book.ISBN == ISBN);
+
+                    if (bookToProlong == null)
+                        Console.WriteLine("ERROR: Invalid ISBN: " + ISBN + ". Try again.");
+                    else if (bookToProlong.Prolonged)
+                    {
+                        Console.WriteLine("Error: Cannot prolong rental of the same book twice.");
+                        Console.Write("Prolong rental of another book?\n[Y]\t[N] No\n> ");
+                        if (Console.ReadKey().KeyChar.ToString().ToLower() == "n")
+                        {
+                            Console.Clear();
+                            return;
+                        }
+                    }
+
+                } while (bookToProlong == null || bookToProlong.Prolonged);
+
+                bookToProlong.Prolonged = true;
+                bookToProlong.ReturnTerm = bookToProlong.ReturnTerm.Value.AddDays(14);
+
+                Console.WriteLine("Prolonged rental of \"" + bookToProlong.Title + "\" by 14 days.");
+
+                context.SaveChanges();
+
             }
 
             Console.WriteLine("\nPress any key to continue.");
@@ -627,7 +739,7 @@ namespace CMDLibrary
             } while (bookToRent == null || bookToRent.Rented);
 
             bookToRent.RentedDate = DateTime.Now;
-            bookToRent.ReturnTerm = bookToRent.RentedDate.Value.AddDays(30);
+            bookToRent.ReturnTerm = bookToRent.RentedDate.Value.AddDays(2);
             bookToRent.Rented = true;
 
             if (userToRent.RentedBooks == null)
@@ -672,6 +784,7 @@ namespace CMDLibrary
             {
                 bookToReturn.UserWhoRented.RentedBooks.Remove(bookToReturn);
                 bookToReturn.Rented = false;
+                bookToReturn.Prolonged = false;
                 bookToReturn.UserWhoRentedId = null;
                 bookToReturn.UserWhoRented = null;
                 bookToReturn.RentedDate = null;
