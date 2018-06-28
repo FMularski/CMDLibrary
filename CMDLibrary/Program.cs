@@ -26,6 +26,7 @@ namespace CMDLibrary
             EditBook,
             RemoveBook,
             RentBook,
+            ReturnBook,
             Exit
         }
 
@@ -142,6 +143,10 @@ namespace CMDLibrary
 
         static void AddNewBook(LibraryContext context)
         {
+            Console.WriteLine("╔══════════╗");
+            Console.WriteLine("║ NEW BOOK ║");
+            Console.WriteLine("╚══════════╝");
+
             Book bookToAdd = BookForm(context, FormMode.New);
             context.Books.Add(bookToAdd);
             context.SaveChanges();
@@ -154,6 +159,10 @@ namespace CMDLibrary
 
         static void RemoveBook(LibraryContext Context)
         {
+            Console.WriteLine("╔══════════════╗");
+            Console.WriteLine("║ BOOK REMOVAL ║");
+            Console.WriteLine("╚══════════════╝");
+
             foreach (var b in Context.Books.ToList())
             {
                 Author author = Context.Authors.Single(a => a.Id == b.AuthorId);
@@ -171,8 +180,10 @@ namespace CMDLibrary
 
                 if (booktoRemove == null)
                     Console.WriteLine("Error: Invalid ISBN: " + ISBN + ". Try again.");
+                else if ( booktoRemove.Rented)
+                    Console.WriteLine("Error: Cannot remove rented books.");
 
-            } while (booktoRemove == null);
+            } while (booktoRemove == null || booktoRemove.Rented);
 
             Console.Write("Are you sure you want to remove \"" + booktoRemove.Title + "\"?\n[Y] Yes\t[N] No\n> ");
             if (Console.ReadKey().KeyChar.ToString().ToLower() == "y")
@@ -191,6 +202,10 @@ namespace CMDLibrary
 
         static void EditBook(LibraryContext context)
         {
+            Console.WriteLine("╔══════════════╗");
+            Console.WriteLine("║ BOOK EDITION ║");
+            Console.WriteLine("╚══════════════╝");
+
             foreach (var b in context.Books.ToList())
             {
                 Author author = context.Authors.Single(a => a.Id == b.AuthorId);
@@ -503,16 +518,17 @@ namespace CMDLibrary
             Console.WriteLine("╚══════════╝");
 
             if ( loggedUser.RentedBooks == null)
-            {
                 Console.WriteLine("You don't have any rented books.");
-                return;
-            }
-
+            else
             foreach (var b in loggedUser.RentedBooks.ToList())
             {
                 Author author = context.Authors.Single(a => a.Id == b.AuthorId);
-                Console.WriteLine(b.ISBN + "\t\t| \"" + b.Title + "\" " + author.FirstName + " " + author.LastName);
+                Console.WriteLine("\"" + b.Title + "\" " + author.FirstName + " " + author.LastName + "\tRented: " + b.RentedDate.Value.ToShortDateString() + "\tReturn term: " + b.ReturnTerm.Value.ToShortDateString());
             }
+
+            Console.WriteLine("\nPress any key to continue.");
+            Console.ReadKey();
+            Console.Clear();
         }
 
         static void AdminScreen(User loggedUser)
@@ -525,15 +541,16 @@ namespace CMDLibrary
             Console.WriteLine("[3] Add a new book");
             Console.WriteLine("[4] Edit a book");
             Console.WriteLine("[5] Remove a book");
-            Console.WriteLine("[6] Rent a book");
-            Console.WriteLine("[7] Log out");
+            Console.WriteLine("[6] Book rental");
+            Console.WriteLine("[7] Book returnal");
+            Console.WriteLine("[8] Log out");
         }
 
         static byte AdminMainMenu(User loggedUser, LibraryContext context)
         {
             AdminScreen(loggedUser);
 
-            switch (MainScreenChoice(7))
+            switch (MainScreenChoice(8))
             {
                 case 1:
                     ListOfBooks(context);
@@ -551,13 +568,124 @@ namespace CMDLibrary
                     RemoveBook(context);
                     return (byte)Selection.RemoveBook;
                 case 6:
-                    //RentBook(context);
+                    RentBook(context);
                     return (byte)Selection.RentBook;
                 case 7:
+                    ReturnBook(context);
+                    return (byte)Selection.ReturnBook;
+                case 8:
                     return (byte)Selection.LogOut;
                 default:
                     return 0;
             }
+        }
+
+        static void RentBook( LibraryContext context)
+        {
+            User userToRent = null;
+
+            Console.WriteLine("╔═════════════╗");
+            Console.WriteLine("║ BOOK RENTAL ║");
+            Console.WriteLine("╚═════════════╝");
+
+            do
+            {
+                Console.Write("Enter user's login: ");
+                string login = Console.ReadLine();
+
+                userToRent = context.Users.SingleOrDefault(u => u.Login == login);
+
+                if (userToRent == null)
+                    Console.WriteLine("Error: User with login " + login + " does not exist in the database. Try again.");
+                else if ( userToRent.Role == User.RoleType.Administrator)
+                    Console.WriteLine("Error: Books cannot be rented to administrators. To rent a book register as a regular user or use another account.\n");
+
+            } while (userToRent == null || userToRent.Role == User.RoleType.Administrator);
+
+            Console.WriteLine("---------------------------------------------");
+
+            foreach (var b in context.Books.Where( b => !b.Rented).ToList())
+            {
+                Author author = context.Authors.Single(a => a.Id == b.AuthorId);
+                Console.WriteLine(b.ISBN + "\t\t| \"" + b.Title + "\" " + author.FirstName + " " + author.LastName);
+            }
+
+            Book bookToRent = null;
+
+            do
+            {
+                Console.Write("\nEnter ISBN of the book for rental: ");
+                string ISBN = Console.ReadLine();
+
+                bookToRent = context.Books.SingleOrDefault(b => b.ISBN == ISBN);
+
+                if (bookToRent == null)
+                    Console.WriteLine("Error: Invalid ISBN: " + ISBN + ". Try again.");
+                else if ( bookToRent.Rented)
+                    Console.WriteLine("Error: \"" + bookToRent.Title + "\" is already rented.");
+
+            } while (bookToRent == null || bookToRent.Rented);
+
+            bookToRent.RentedDate = DateTime.Now;
+            bookToRent.ReturnTerm = bookToRent.RentedDate.Value.AddDays(30);
+            bookToRent.Rented = true;
+
+            if (userToRent.RentedBooks == null)
+                userToRent.RentedBooks = new List<Book>();
+
+            userToRent.RentedBooks.Add(bookToRent);
+            context.SaveChanges();
+
+            Console.WriteLine("\"" + bookToRent.Title + "\" has been successfully rented to user " + userToRent.Login + ".\n");
+            Console.WriteLine("Press any key to continue.");
+            Console.ReadKey();
+            Console.Clear();
+        }
+
+        static void ReturnBook(LibraryContext context)
+        {
+            Console.WriteLine("╔═══════════════╗");
+            Console.WriteLine("║ BOOK RETURNAL ║");
+            Console.WriteLine("╚═══════════════╝");
+
+            foreach (var b in context.Books.Where( b => b.Rented).ToList())
+            {
+                Author author = context.Authors.Single(a => a.Id == b.AuthorId);
+                Console.WriteLine(b.ISBN + "\t\t| \"" + b.Title + "\" " + author.FirstName + " " + author.LastName);
+            }
+
+            Book bookToReturn = null;
+
+            do
+            {
+                Console.Write("\nEnter ISBN of the book to return: ");
+                string ISBN = Console.ReadLine();
+
+                bookToReturn = context.Books.Where(b => b.Rented == true).SingleOrDefault(b => b.ISBN == ISBN);
+
+                if (bookToReturn == null)
+                    Console.WriteLine("ERROR: Invalid ISBN or the book is not rented.");
+            } while (bookToReturn == null);
+
+            Console.Write("\n\"" + bookToReturn.Title + "\" is rented by " + bookToReturn.UserWhoRented.Login + ". Return?\n[Y] Yes\t[N] No\n> ");
+            if (Console.ReadKey().KeyChar.ToString().ToLower() == "y")
+            {
+                bookToReturn.UserWhoRented.RentedBooks.Remove(bookToReturn);
+                bookToReturn.Rented = false;
+                bookToReturn.UserWhoRentedId = null;
+                bookToReturn.UserWhoRented = null;
+                bookToReturn.RentedDate = null;
+                bookToReturn.ReturnTerm = null;
+
+                context.SaveChanges();
+
+                Console.WriteLine("\n\"" + bookToReturn.Title + "\" has been succesfully returned.");
+            }
+            else Console.WriteLine("\nReturnal cancelled.");
+
+            Console.WriteLine("\nPress any key to continue.");
+            Console.ReadKey();
+            Console.Clear();
         }
     }
 }

@@ -97,6 +97,10 @@
     <Compile Include="Migrations\201806252022271_FluentAPI_User_Book.Designer.cs">
       <DependentUpon>201806252022271_FluentAPI_User_Book.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806281150454_AddedRentedDate_ReturnTermColumnsToBooksTable.cs" />
+    <Compile Include="Migrations\201806281150454_AddedRentedDate_ReturnTermColumnsToBooksTable.Designer.cs">
+      <DependentUpon>201806281150454_AddedRentedDate_ReturnTermColumnsToBooksTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -136,6 +140,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806252022271_FluentAPI_User_Book.resx">
       <DependentUpon>201806252022271_FluentAPI_User_Book.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806281150454_AddedRentedDate_ReturnTermColumnsToBooksTable.resx">
+      <DependentUpon>201806281150454_AddedRentedDate_ReturnTermColumnsToBooksTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

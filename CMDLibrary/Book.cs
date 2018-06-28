@@ -18,5 +18,7 @@ namespace CMDLibrary
         public bool Rented { get; set; }
         public User UserWhoRented { get; set; }
         public int? UserWhoRentedId { get; set; }
+        public DateTime? RentedDate { get; set; }
+        public DateTime? ReturnTerm { get; set; }
     }
 }
